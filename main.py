@@ -21,8 +21,7 @@ def obtener_meses():
 
 @app.get("/cantidad_filmaciones_mes") 
 def cantidad_filmaciones_mes(Mes):
-    
-   try:
+    try:
         
         # Obtener diccionario de traducción
         meses = obtener_meses()
