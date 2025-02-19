@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-
 import pandas as pd
+
 from sklearn.metrics.pairwise import linear_kernel
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -203,6 +203,7 @@ def get_director(director):
     except Exception as e:
         return {"Error": f"Error inesperado: Valor incorrecto"}
 
+df = cargar_data()
 
 x = TfidfVectorizer(stop_words='english')
 x_matrix = x.fit_transform(df['muestra'])
@@ -211,6 +212,8 @@ sim_cos = linear_kernel(x_matrix, x_matrix)
 
 @app.get("/recomendacion")    
 def recomendacion(titulo):
+    df = cargar_data()
+    
     titulo = titulo.strip().lower()
     
     pelicula = df[df["title"].str.strip().str.lower() == titulo]
@@ -225,6 +228,4 @@ def recomendacion(titulo):
     ind = [i for i, _ in scores[1:6]]
     movies = df['title'].iloc[ind].values.tolist()
     return {f'peliculas recomendados para {titulo}': list(movies)}
-
-recomendacion_movie('jurassic park')
 
