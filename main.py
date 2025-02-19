@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 
-import pandas as pd
 
+import pandas as pd
+from sklearn.metrics.pairwise import linear_kernel
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 app = FastAPI()
 
@@ -125,12 +127,15 @@ def votos_titulo(titulo):
         # Extraer valores de la primera coincidencia
         conteo_votos = pelicula["vote_count"].values[0]
         
+        anio = pelicula["release_year"].values[0]
+        
         if conteo_votos < 2000:
             return f"Error: La película '{titulo}' no cumple con el minimo de 2000 valoraciones."
         
         promedio_votos = pelicula["vote_average"].values[0]
 
-        return f"La película '{titulo.title()}' fue estrenada en el año {conteo_votos} con un score/popularidad de {promedio_votos}."
+        return (f"La película '{titulo.title()}' fue estrenada en el año {anio} la misma cuenta con "
+                f"un total de {conteo_votos} valoraciones con un promedio de {promedio_votos}.")
 
     except Exception as e:
         return f"Error inesperado: Valor incorrecto"
@@ -155,7 +160,7 @@ def get_actor(actor):
         suma_retorno = peliculas["return"].sum()
         promedio_retorno = suma_retorno / total_peliculas
 
-        return (f"El actor '{actor}' ha participado de {total_peliculas} cantidad de filmaciones, "
+        return (f"El actor '{actor}' ha participado en {total_peliculas} filmaciones, "
                 f"el mismo ha conseguido un retorno de {suma_retorno:.2f} "
                 f" con un promedio de {promedio_retorno:.2f} por filmación")
 
@@ -197,3 +202,29 @@ def get_director(director):
 
     except Exception as e:
         return {"Error": f"Error inesperado: Valor incorrecto"}
+
+
+x = TfidfVectorizer(stop_words='english')
+x_matrix = x.fit_transform(df['muestra'])
+
+sim_cos = linear_kernel(x_matrix, x_matrix)
+
+@app.get("/recomendacion")    
+def recomendacion(titulo):
+    titulo = titulo.strip().lower()
+    
+    pelicula = df[df["title"].str.strip().str.lower() == titulo]
+    
+    if pelicula.empty:
+        return {'No hay datos de la pelicula'}
+    
+    idx = pelicula.index.tolist()[0]
+    
+    cosine = list(enumerate(sim_cos[idx]))
+    scores = sorted(cosine, key=lambda x: x[1], reverse=True)
+    ind = [i for i, _ in scores[1:6]]
+    movies = df['title'].iloc[ind].values.tolist()
+    return {f'peliculas recomendados para {titulo}': list(movies)}
+
+recomendacion_movie('jurassic park')
+
