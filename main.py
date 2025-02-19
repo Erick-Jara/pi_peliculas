@@ -5,8 +5,9 @@ import pandas as pd
 
 app = FastAPI()
 
-# Cargar dataset
-df = pd.read_csv("datos/dataset.csv")
+#Cargar Dataset
+def cargar_data():
+    return pd.read_csv("datos/dataset.csv")
 
 def obtener_meses():
    
@@ -21,21 +22,24 @@ def obtener_meses():
 @app.get("/cantidad_filmaciones_mes") 
 def cantidad_filmaciones_mes(Mes):
     
-    try:
+   try:
         
         # Obtener diccionario de traducción
-        meses_traducidos = obtener_meses()
+        meses = obtener_meses()
+        
+        #obtener dataset
+        df = cargar_data()
 
         # (convertir primera letra en mayúscula, resto en minúscula)
-        mes_formateado = mes.capitalize()
-
+        mes = mes.capitalize()
+        
         # Obtener el nombre del mes en inglés
-        mes_ingles = meses_traducidos[mes_formateado]
+        mes_ingles = meses[mes]
 
         # Contar cuántas películas fueron estrenadas en ese mes
         cantidad = df[df['month'] == mes_ingles].shape[0]
 
-        return f"{cantidad} cantidad de películas fueron estrenadas en el mes de {mes_formateado}."
+        return f"{cantidad} cantidad de películas fueron estrenadas en el mes de {mes}."
 
     except Exception as e:
-        return f"Error inesperado: {str(e)}"
+        return f"Error inesperado: Valor incorrecto"
