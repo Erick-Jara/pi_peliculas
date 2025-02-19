@@ -42,3 +42,39 @@ def cantidad_filmaciones_mes(mes):
 
     except Exception as e:
         return f"Error inesperado: Valor incorrecto"
+    
+def obtener_dias():
+   
+    dias = {"Lunes": "Monday",
+            "Martes": "Tuesday",
+            "Miércoles": "Wednesday",
+            "Jueves": "Thursday",
+            "Viernes": "Friday",
+            "Sábado": "Saturday",
+            "Domingo": "Sunday"
+            }
+    return dias
+
+@app.get("/cantidad_filmaciones_dia") 
+
+def cantidad_filmaciones_dia(dia):
+    try:
+        # Obtener diccionario de traducción
+        dias = obtener_dias()
+        
+        #obtener dataset
+        df = cargar_data()
+
+        # (convertir primera letra en mayúscula, resto en minúscula)
+        dia = dia.capitalize()
+        
+        # Obtener el nombre del mes en inglés
+        dia_ingles = dias[dia]
+
+        # Contar cuántas películas fueron estrenadas en ese mes
+        cantidad = df[df['day'] == dia_ingles].shape[0]
+
+        return f"{cantidad} cantidad de películas fueron estrenadas en los días {dia}."
+
+    except Exception as e:
+        return f"Error inesperado: Valor incorrecto"
