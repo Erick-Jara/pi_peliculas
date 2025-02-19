@@ -10,7 +10,7 @@ def cantidad_filmaciones_mes(Mes):
     
     try:
         # Cargar dataset
-        df = pd.read_csv("https://github.com/Erick-Jara/pi_peliculas/blob/master/datos/dataset.csv")
+        df = pd.read_csv("datos/dataset.csv")
 
         # Normalizar mes (quitar tildes y convertir a minúsculas)
         mes_normalizado = unidecode.unidecode(Mes.strip().lower())
